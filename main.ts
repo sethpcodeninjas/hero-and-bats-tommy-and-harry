@@ -1,9 +1,46 @@
+controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
+    animation.runImageAnimation(
+    hero,
+    heroWalkingUp,
+    200,
+    true
+    )
+})
+controller.left.onEvent(ControllerButtonEvent.Pressed, function () {
+    animation.runImageAnimation(
+    hero,
+    heroWalkingLeft,
+    200,
+    true
+    )
+})
+controller.right.onEvent(ControllerButtonEvent.Pressed, function () {
+    animation.runImageAnimation(
+    hero,
+    heroWalkingRight,
+    200,
+    true
+    )
+})
+controller.down.onEvent(ControllerButtonEvent.Pressed, function () {
+    animation.runImageAnimation(
+    hero,
+    heroWalkingDown,
+    200,
+    true
+    )
+})
 sprites.onOverlap(SpriteKind.Player, SpriteKind.Enemy, function (sprite, otherSprite) {
     info.changeLifeBy(-1)
     otherSprite.setFlag(SpriteFlag.GhostThroughSprites, true)
 })
 let bat: Sprite = null
-let hero = sprites.create(img`
+let heroWalkingDown: Image[] = []
+let heroWalkingUp: Image[] = []
+let heroWalkingLeft: Image[] = []
+let heroWalkingRight: Image[] = []
+let hero: Sprite = null
+hero = sprites.create(img`
     . . . . . . f f f f . . . . . . 
     . . . . f f f 2 2 f f f . . . . 
     . . . f f f 2 2 2 2 f f f . . . 
@@ -27,7 +64,7 @@ scene.cameraFollowSprite(hero)
 info.setLife(3)
 tiles.setTilemap(tilemap`level1`)
 tiles.placeOnTile(hero, tiles.getTileLocation(2, 2))
-let heroWalkingRight = [img`
+heroWalkingRight = [img`
     . . . . . . f f f f f f . . . . 
     . . . . f f e e e e f 2 f . . . 
     . . . f f e e e e f 2 2 2 f . . 
@@ -96,7 +133,7 @@ let heroWalkingRight = [img`
     . . . . f f f f f f f f f f . . 
     . . . . . f f . . . f f f . . . 
     `]
-let heroWalkingLeft = [img`
+heroWalkingLeft = [img`
     . . . . f f f f f f . . . . . . 
     . . . f 2 f e e e e f f . . . . 
     . . f 2 2 2 f e e e e f f . . . 
@@ -165,7 +202,7 @@ let heroWalkingLeft = [img`
     . . f f f f f f f f f f . . . . 
     . . . f f f . . . f f . . . . . 
     `]
-let heroWalkingUp = [img`
+heroWalkingUp = [img`
     . . . . . . f f f f . . . . . . 
     . . . . f f e e e e f f . . . . 
     . . . f e e e f f e e e f . . . 
@@ -234,7 +271,7 @@ let heroWalkingUp = [img`
     . . . 4 e e f f f f f f e . . . 
     . . . . . . . . . f f f . . . . 
     `]
-let heroWalkingDown = [img`
+heroWalkingDown = [img`
     . . . . . . f f f f . . . . . . 
     . . . . f f f 2 2 f f f . . . . 
     . . . f f f 2 2 2 2 f f f . . . 
@@ -303,8 +340,13 @@ let heroWalkingDown = [img`
     . . . . . f f f f f f f . . . . 
     . . . . . . . . . f f f . . . . 
     `]
+game.onUpdate(function () {
+    if (hero.vy == 0 && hero.vx == 0) {
+        animation.stopAnimation(animation.AnimationTypes.ImageAnimation, hero)
+    }
+})
 // Creating enemies
-game.onUpdateInterval(2000, function () {
+game.onUpdateInterval(500, function () {
     bat = sprites.create(img`
         . . f f f . . . . . . . . f f f 
         . f f c c . . . . . . f c b b c 
@@ -323,6 +365,7 @@ game.onUpdateInterval(2000, function () {
         . . f b b b b b b c f . . . . . 
         . . . f f f f f f f . . . . . . 
         `, SpriteKind.Enemy)
-    bat.setPosition(160, randint(0, 120))
     bat.setVelocity(-50, 0)
+    tiles.placeOnRandomTile(bat, sprites.dungeon.purpleOuterEast1)
+    bat.setFlag(SpriteFlag.DestroyOnWall, true)
 })
